@@ -18,10 +18,12 @@ export async function generateAllAssets(
   try {
     projectStore.updateProject(projectId, { status: 'processing' })
 
-    // Step 1: Conduct market research (10%)
-    projectStore.updateProgress(projectId, 10, 'Conducting deep market research...')
+    // Step 1: Conduct market research (0-10%)
     logger.info(`[${projectId}] Starting market research`)
-    const research = await conductMarketResearch(context)
+    const research = await conductMarketResearch(context, (progress, message) => {
+      projectStore.updateProgress(projectId, progress, message)
+    })
+    projectStore.updateProgress(projectId, 10, 'Market research completed!')
     logger.info(`[${projectId}] Market research completed`)
 
     // Step 2: Generate MVP name (20%)

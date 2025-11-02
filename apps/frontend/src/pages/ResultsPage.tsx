@@ -83,11 +83,21 @@ export function ResultsPage() {
     queryKey: ['project', projectId],
     queryFn: async () => {
       const response = await axios.get(`/api/projects/${projectId}`)
-      return response.data as Project
+      const projectData = response.data as Project
+      // Log progress for debugging
+      if (projectData.status === 'processing') {
+        console.log(`Progress: ${projectData.progress}% - ${projectData.currentTask}`)
+      }
+      return projectData
     },
-    refetchInterval: (data) => {
+    refetchInterval: (query) => {
+      // Keep polling if status is processing
+      const data = query.state.data
       return data?.status === 'processing' ? 2000 : false
     },
+    refetchIntervalInBackground: true,
+    staleTime: 0, // Always consider data stale to ensure fresh updates
+    gcTime: 0, // Don't cache old results (renamed from cacheTime in v5)
   })
 
   const handleExport = async (format: 'pdf' | 'pptx' | 'json') => {

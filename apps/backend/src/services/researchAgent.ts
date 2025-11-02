@@ -12,8 +12,14 @@ export interface ResearchInsights {
   valueProposition: string
 }
 
-export async function conductMarketResearch(mvpContext: string): Promise<ResearchInsights> {
+export async function conductMarketResearch(
+  mvpContext: string,
+  progressCallback?: (progress: number, message: string) => void
+): Promise<ResearchInsights> {
   logger.info('Conducting comprehensive market research...')
+
+  // Update: Starting research
+  progressCallback?.(1, 'Initializing market research...')
 
   const researchPrompt = `Based on this MVP idea:
 
@@ -33,9 +39,12 @@ Consider real companies and products in this space.
 
 Provide detailed, actionable insights based on current market realities.`
 
+  // Update: Analyzing market
+  progressCallback?.(3, 'Analyzing industry and competitors...')
   const research = await deepResearch(researchPrompt)
 
   // Parse research into structured format
+  progressCallback?.(7, 'Structuring research insights...')
   const structurePrompt = `Convert this research into structured JSON:
 
 ${research}

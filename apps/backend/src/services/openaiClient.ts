@@ -1,13 +1,26 @@
 import OpenAI from 'openai'
 import { logger } from '../utils/logger.js'
 
-const apiKey = process.env.OPENAI_API_KEY
-
-if (!apiKey) {
-  throw new Error('OPENAI_API_KEY environment variable is required')
+function getOpenAIClient() {
+  const apiKey = process.env.OPENAI_API_KEY
+  
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY environment variable is required')
+  }
+  
+  return new OpenAI({ apiKey })
 }
 
-export const openai = new OpenAI({ apiKey })
+let openaiInstance: OpenAI | null = null
+
+export const openai = new Proxy({} as OpenAI, {
+  get(target, prop) {
+    if (!openaiInstance) {
+      openaiInstance = getOpenAIClient()
+    }
+    return (openaiInstance as any)[prop]
+  }
+})
 
 export async function deepResearch(prompt: string, context?: string): Promise<string> {
   try {
@@ -32,7 +45,7 @@ Conduct thorough research and provide detailed, professional insights based on c
         { role: 'system', content: systemPrompt },
         { role: 'user', content: fullPrompt },
       ],
-      temperature: 0.7,
+      temperature: 0.3,
       max_tokens: 4000,
     })
 
@@ -61,7 +74,7 @@ Base your output on industry best practices and real-world examples from market 
         { role: 'system', content: systemPrompt },
         { role: 'user', content: fullPrompt },
       ],
-      temperature: 0.7,
+      temperature: 0.3,
       max_tokens: 4000,
       response_format: { type: 'json_object' },
     })

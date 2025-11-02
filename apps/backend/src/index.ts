@@ -1,10 +1,11 @@
+import dotenv from 'dotenv'
+// Configure dotenv FIRST before any other imports that might use env vars
+dotenv.config()
+
 import express from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
 import { projectRoutes } from './routes/projects.js'
 import { logger } from './utils/logger.js'
-
-dotenv.config()
 
 const app = express()
 const PORT = process.env.PORT || 5000
